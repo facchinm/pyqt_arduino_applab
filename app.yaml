@@ -3,4 +3,5 @@ description: "Sample App Lab app with a PyQt6 UI that toggles the board LED and 
 icon: 🖥️
 ports:
   - 5900
-bricks: []
+bricks:
+  - x11-display

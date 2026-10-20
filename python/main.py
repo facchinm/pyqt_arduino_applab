@@ -2,15 +2,17 @@ import ctypes
 import glob
 import os
 import sys
+import time
 
 from arduino.app_utils import Bridge
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Populated by the x11-display brick (the only host dir mounted in this container is the app folder).
+X11_DIR = os.path.join(APP_DIR, ".x11")
 
 
 def preload_bundled_libs():
-    # The App Lab base image lacks Qt's system deps; deploy.sh copies them from the host into python/lib.
-    pending = sorted(glob.glob(os.path.join(APP_DIR, "python", "lib", "*.so*")))
+    pending = sorted(glob.glob(os.path.join(X11_DIR, "lib", "*.so*")))
     while pending:
         failed = []
         for path in pending:
@@ -24,9 +26,9 @@ def preload_bundled_libs():
 
 
 def setup_display():
-    # deploy.sh relays the host X socket and cookie into <app>/.x11 (the only host dir mounted in the container).
-    x11_dir = os.path.join(APP_DIR, ".x11")
-    sockets = glob.glob(os.path.join(x11_dir, "X*[0-9]"))
+    deadline = time.monotonic() + 30
+    while not (sockets := glob.glob(os.path.join(X11_DIR, "X*[0-9]"))) and time.monotonic() < deadline:
+        time.sleep(0.5)
     if sockets:
         name = os.path.basename(sockets[0])
         os.makedirs("/tmp/.X11-unix", exist_ok=True)
@@ -34,14 +36,14 @@ def setup_display():
         if not os.path.lexists(link):
             os.symlink(sockets[0], link)
         os.environ["DISPLAY"] = ":" + name[1:]
-        os.environ["XAUTHORITY"] = os.path.join(x11_dir, "Xauthority")
+        os.environ["XAUTHORITY"] = os.path.join(X11_DIR, "Xauthority")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
     elif not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
         os.environ.setdefault("QT_QPA_PLATFORM", "vnc:size=800x480:port=5900")
 
 
-preload_bundled_libs()
 setup_display()
+preload_bundled_libs()
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import (

@@ -1,0 +1,3 @@
+id: x11-display
+name: Host X11 display
+description: Lets the app's main container draw on the board's X server and provides the Qt system libraries missing from the base image

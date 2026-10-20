@@ -1,0 +1,30 @@
+services:
+  x11-display:
+    image: ghcr.io/arduino/app-bricks/python-apps-base:0.13.1
+    user: "1000:1000"
+    entrypoint: ["python", "/app/bricks/x11-display/relay.py"]
+    environment:
+      X_DISPLAY: "10"
+    volumes:
+      - ${APP_HOME:-.}:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /home/arduino/.Xauthority:/host-x11/Xauthority:ro
+      - /usr/lib/aarch64-linux-gnu/libGLdispatch.so.0:/host-libs/libGLdispatch.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libGLX.so.0:/host-libs/libGLX.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libGL.so.1:/host-libs/libGL.so.1:ro
+      - /usr/lib/aarch64-linux-gnu/libxkbcommon.so.0:/host-libs/libxkbcommon.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxkbcommon-x11.so.0:/host-libs/libxkbcommon-x11.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-cursor.so.0:/host-libs/libxcb-cursor.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-icccm.so.4:/host-libs/libxcb-icccm.so.4:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-image.so.0:/host-libs/libxcb-image.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-keysyms.so.1:/host-libs/libxcb-keysyms.so.1:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-render-util.so.0:/host-libs/libxcb-render-util.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-shape.so.0:/host-libs/libxcb-shape.so.0:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-xkb.so.1:/host-libs/libxcb-xkb.so.1:ro
+      - /usr/lib/aarch64-linux-gnu/libxcb-util.so.1:/host-libs/libxcb-util.so.1:ro
+      - /usr/lib/aarch64-linux-gnu/libSM.so.6:/host-libs/libSM.so.6:ro
+      - /usr/lib/aarch64-linux-gnu/libICE.so.6:/host-libs/libICE.so.6:ro
+    healthcheck:
+      test: ["CMD-SHELL", "test -S /app/.x11/X10"]
+      interval: 1s
+      retries: 30
