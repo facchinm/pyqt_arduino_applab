@@ -20,6 +20,7 @@ Logs: `adb shell arduino-app-cli app logs --follow user:pyqt-led-control`.
 
 ## Viewing the UI
 
-The window opens on the board's X display `:10` (change `X_DISPLAY` and the
-healthcheck in `bricks/x11-display/brick_compose.yaml`, e.g. to `0` for the local screen).
+The window opens on the most recent X session on the board: an xrdp session (`:10`) if
+one is active, otherwise the local screen (`:0`). Force one with `X_DISPLAY` in
+`bricks/x11-display/brick_compose.yaml`. Deploy over SSH with `BOARD=arduino@<ip> ./deploy.sh`.
 If the relay socket doesn't appear within 30 s, Qt falls back to VNC on port 5900.

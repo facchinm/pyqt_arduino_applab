@@ -3,12 +3,14 @@ services:
     image: ghcr.io/arduino/app-bricks/python-apps-base:0.13.1
     user: "1000:1000"
     entrypoint: ["python", "/app/bricks/x11-display/relay.py"]
+    # Set X_DISPLAY (e.g. "0" local screen, "10" xrdp) to override auto-detection of the newest session.
     environment:
-      X_DISPLAY: "10"
+      X_DISPLAY: ""
     volumes:
       - ${APP_HOME:-.}:/app
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /home/arduino/.Xauthority:/host-x11/Xauthority:ro
+      # Whole dir, not the file: the session manager replaces ~/.Xauthority on login.
+      - /home/arduino:/host-home:ro
       - /usr/lib/aarch64-linux-gnu/libGLdispatch.so.0:/host-libs/libGLdispatch.so.0:ro
       - /usr/lib/aarch64-linux-gnu/libGLX.so.0:/host-libs/libGLX.so.0:ro
       - /usr/lib/aarch64-linux-gnu/libGL.so.1:/host-libs/libGL.so.1:ro
@@ -25,6 +27,6 @@ services:
       - /usr/lib/aarch64-linux-gnu/libSM.so.6:/host-libs/libSM.so.6:ro
       - /usr/lib/aarch64-linux-gnu/libICE.so.6:/host-libs/libICE.so.6:ro
     healthcheck:
-      test: ["CMD-SHELL", "test -S /app/.x11/X10"]
+      test: ["CMD-SHELL", "test -S /app/.x11/X0"]
       interval: 1s
       retries: 30
